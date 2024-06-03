@@ -1,0 +1,116 @@
+/* App.css */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.App {
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 400px;
+  max-width: 90%;
+}
+
+.connect-container,
+.chat-container {
+  padding: 20px;
+}
+
+.connect-container input,
+.input-container input {
+  width: 95%;
+  padding: 10px;
+  height:16px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.connect-container .interests {
+  margin-bottom: 10px;
+}
+
+.connect-container .interests label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.connect-container .interests input {
+  position: relative;
+  top:22px;
+}
+
+.connect-container button,
+.input-container button {
+  width: 19%;
+  height:36px;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.connect-container button:hover,
+.input-container button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.messages {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 10px;
+}
+
+.message.sent {
+  text-align: right;
+}
+
+.message.received {
+  text-align: left;
+}
+
+.message strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.input-container {
+  display: flex;
+  gap: 10px;
+}
+
+.input-container input {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .App {
+    width: 100%;
+    border-radius: 0;
+  }
+}

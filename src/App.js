@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Button, Modal, Checkbox } from "antd";
+import { clean } from 'profanity-cleaner';
 import "./App.css";
 
-const socket = io("https://str-chat-express.onrender.com");
+const socket = io(process.env.PROD_URL?process.env.PROD_URL:"http://localhost:5000");
 
 function App() {
   const [userId, setUserId] = useState("");
@@ -19,6 +20,7 @@ function App() {
   const [agreement, setAgreement] = useState(
     localStorage.getItem("agreedToDisclaimer") === "true"
   );
+  const badWordsArray = process.env.REACT_APP_BADWORDS?process.env.REACT_APP_BADWORDS.split(", "):[];
 
   const availableInterests = [
     "Sports",
@@ -103,10 +105,10 @@ function App() {
 
   const sendMessage = () => {
     if (message.trim()) {
-      socket.emit("sendMessage", message);
+      socket.emit("sendMessage", clean(message,{ customBadWords: badWordsArray }));
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "You", text: message },
+        { user: "You", text: clean(message,{ customBadWords: badWordsArray }) },
       ]);
       setMessage("");
     }

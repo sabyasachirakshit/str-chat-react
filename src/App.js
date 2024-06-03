@@ -44,7 +44,7 @@ function App() {
     socket.on("receiveMessage", (message) => {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "Stranger", text: message },
+        { user: "Stranger", text: clean(message,{ customBadWords: badWordsArray }) },
       ]);
     });
 

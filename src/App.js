@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Button, Modal, Checkbox } from "antd";
-import { clean } from 'profanity-cleaner';
-import "./App.css";
+import { clean } from "profanity-cleaner";
+import "./Chat.css";
 
-const socket = io(process.env.REACT_APP_PROD_URL?process.env.REACT_APP_PROD_URL:"http://localhost:5000");
+const socket = io(
+  process.env.REACT_APP_PROD_URL
+    ? process.env.REACT_APP_PROD_URL
+    : "http://localhost:5000"
+);
 
 function App() {
   const [userId, setUserId] = useState("");
@@ -20,7 +24,9 @@ function App() {
   const [agreement, setAgreement] = useState(
     localStorage.getItem("agreedToDisclaimer") === "true"
   );
-  const badWordsArray = process.env.REACT_APP_BADWORDS?process.env.REACT_APP_BADWORDS.split(", "):[];
+  const badWordsArray = process.env.REACT_APP_BADWORDS
+    ? process.env.REACT_APP_BADWORDS.split(", ")
+    : [];
 
   const availableInterests = [
     "Sports",
@@ -31,9 +37,28 @@ function App() {
     "Religion",
     "Astronomy",
     "Science",
+    "Default chat",
   ];
 
   useEffect(() => {
+    // Generate or retrieve user ID
+    const storedUserId = localStorage.getItem("userId");
+    if (!storedUserId) {
+      const newUserId = generateUniqueId(12);
+      localStorage.setItem("userId", newUserId);
+      setUserId(newUserId);
+    } else {
+      setUserId(storedUserId);
+    }
+
+    // Retrieve interests from local storage
+    const storedInterests = JSON.parse(localStorage.getItem("interests")) || [];
+    if (storedInterests.length === 0) {
+      // If no interests are saved, default to "Default"
+      storedInterests.push("Default chat");
+    }
+    setInterests(storedInterests);
+
     socket.on("welcome", (message) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -44,7 +69,7 @@ function App() {
     socket.on("receiveMessage", (message) => {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "Stranger", text: clean(message,{ customBadWords: badWordsArray }) },
+        { user: "Stranger", text: message },
       ]);
     });
 
@@ -93,22 +118,40 @@ function App() {
     };
   }, []);
 
+  const generateUniqueId = (length) => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
+  };
+
   const connectToChat = () => {
-    if (userId.trim() && interests.length > 0 && agreement) {
+    if (userId && interests.length > 0 && agreement) {
       socket.emit("register", { userId, interests });
     } else {
       setError(
-        "Please enter a user ID, select at least one interest, and agree to the disclaimer."
+        "Please select at least one interest and agree to the disclaimer."
       );
     }
   };
 
   const sendMessage = () => {
     if (message.trim()) {
-      socket.emit("sendMessage", clean(message,{ customBadWords: badWordsArray }));
+      socket.emit(
+        "sendMessage",
+        clean(message, { customBadWords: badWordsArray })
+      );
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "You", text: clean(message,{ customBadWords: badWordsArray }) },
+        {
+          user: "You",
+          text: clean(message, { customBadWords: badWordsArray }),
+        },
       ]);
       setMessage("");
     }
@@ -136,27 +179,26 @@ function App() {
     }
   };
 
+  const handleInterestChange = (interest) => {
+    setInterests((prev) => {
+      let newInterests;
+      if (prev.includes(interest)) {
+        newInterests = prev.filter((i) => i !== interest);
+      } else {
+        newInterests = [...prev, interest];
+      }
+      localStorage.setItem("interests", JSON.stringify(newInterests));
+      return newInterests;
+    });
+  };
+
   return (
     <div className="App">
-      <div
-        className="disclaimer"
-        style={{
-          display: "flex",
-          width: "100%",
-          justifyContent: "center",
-          marginTop: 5,
-        }}
-      >
+      <div className="disclaimer">
         <Button onClick={showModal}>Read Disclaimer</Button>
       </div>
       {!connected ? (
         <div className="connect-container">
-          <input
-            type="text"
-            placeholder="Enter your user ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
           <div className="interests">
             {availableInterests.map((interest) => (
               <label key={interest}>
@@ -164,29 +206,20 @@ function App() {
                   type="checkbox"
                   value={interest}
                   checked={interests.includes(interest)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setInterests((prev) => [...prev, interest]);
-                    } else {
-                      setInterests((prev) =>
-                        prev.filter((i) => i !== interest)
-                      );
-                    }
-                  }}
+                  onChange={() => handleInterestChange(interest)}
                 />
                 {interest}
               </label>
             ))}
           </div>
-          <Checkbox
-            checked={agreement}
-            onChange={handleCheckboxChange}
-          >
-            I agree to the terms and conditions
-          </Checkbox>
-          <button onClick={connectToChat} style={{ width: "30%" }}>
-            Connect
-          </button>
+          <div className="connection">
+            <Checkbox checked={agreement} onChange={handleCheckboxChange}>
+              I agree to the terms and conditions
+            </Checkbox>
+            <button onClick={connectToChat} style={{ width: "30%" }}>
+              Connect
+            </button>
+          </div>
           {error && <p className="error">{error}</p>}
         </div>
       ) : (
@@ -232,11 +265,7 @@ function App() {
           </Button>,
         ]}
       >
-        <p>
-          Please be cautious when chatting with strangers online. Do not share
-          personal information such as your full name, address, phone number, or
-          financial details. Always prioritize your safety and privacy.
-        </p>
+        <p>Please be cautious when chatting with strangers online. </p>
       </Modal>
     </div>
   );

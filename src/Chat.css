@@ -85,6 +85,15 @@
   }
 }
 
+@media (max-width:600px){
+  .connection {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 120px;
+  }
+}
+
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
   .disclaimer {
@@ -133,6 +142,36 @@
 }
 
 @media (min-width: 1024px) {
+  .disclaimer {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 5px;
+  }
+
+  .connect-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .interests {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .connection {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 80px;
+  }
+}
+
+@media (min-width: 1080px) {
+  
   .disclaimer {
     display: flex;
     width: 100%;

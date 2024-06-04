@@ -26,6 +26,25 @@
   justify-content: center;
   margin-bottom: 60px;
 }
+.chat-container {
+  display: flex;
+  height: -webkit-fill-available;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.input-container {
+  margin-bottom: 50px;
+}
+.messages {
+  height: -webkit-fill-available;
+  overflow: auto;
+}
+.text-bar{
+  width: 95%;
+}
+.send-button{
+  width: 4%;
+}
 
 @media (min-width: 320px) {
   .App {
@@ -85,7 +104,7 @@
   }
 }
 
-@media (max-width:600px){
+@media (max-width: 600px) {
   .connection {
     display: flex;
     gap: 5px;
@@ -171,7 +190,6 @@
 }
 
 @media (min-width: 1080px) {
-  
   .disclaimer {
     display: flex;
     width: 100%;

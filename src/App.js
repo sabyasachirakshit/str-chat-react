@@ -243,13 +243,16 @@ function App() {
 
           <div className="input-container">
             <input
+              className="text-bar"
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type a message..."
             />
-            <button onClick={sendMessage}>Send</button>
+            <button className="send-button" onClick={sendMessage}>
+              Send
+            </button>
           </div>
         </div>
       )}

@@ -38,6 +38,12 @@ function App() {
     "Travel",
     "Religion",
     "Astronomy",
+    "Philosophy",
+    "Politics",
+    "Universe",
+    "Paranormal",
+    "Love",
+    "Friends",
     "Science",
     "Default chat",
   ];
@@ -272,9 +278,31 @@ function App() {
               {messages.map((msg, index) => (
                 <div
                   key={index}
-                  className={`message ${
-                    msg.user === "You" ? "sent" : "received"
-                  }`}
+                  className={`message 
+                  ${
+                    msg.user === "You" ? "sent" : ""
+                  } 
+                  ${
+                    msg.user === "Stranger" ? "received" : ""
+                  } 
+                  
+                  ${
+                    msg.user === "System" &&
+                    msg.text.startsWith(
+                      "You have been matched with a user interested in"
+                    )
+                      ? "system-message-green"
+                      : ""
+                  }
+                  ${
+                    msg.user === "System" &&
+                    msg.text.startsWith(
+                      "Your chat partner has disconnected"
+                    )
+                      ? "system-message-red"
+                      : ""
+                  }
+                  `}
                 >
                   <strong>{msg.user}:</strong> {msg.text}
                 </div>

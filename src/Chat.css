@@ -2,6 +2,7 @@
   padding: 0px;
   margin: 0px;
   height: 100vh;
+  background-color: #FFFDD0;
 }
 .disclaimer {
   display: flex;
@@ -30,7 +31,7 @@
   display: flex;
   height: -webkit-fill-available;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: end;
 }
 .input-container {
   margin-bottom: 50px;
@@ -40,12 +41,28 @@
 .messages {
   height: -webkit-fill-available;
   overflow: auto;
+  display: flex;
+  justify-content: end;
+  flex-direction: column;
+  gap:5px;
 }
 .text-bar{
   width: 87%;
 }
 .send-button{
   width: 4%;
+}
+.system-message-green{
+  color:green;
+}
+.system-message-red{
+  color:red;
+}
+.sent{
+  color:black;
+}
+.received{
+  color: blue;
 }
 
 @media (min-width: 320px) {

@@ -12,9 +12,11 @@ const socket = io(
 
 function App() {
   const [userId, setUserId] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); 
   const [interests, setInterests] = useState([]);
   const [msg, setMsg] = useState("");
   const [message, setMessage] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [strangerTyping, setStrangerTyping] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -49,6 +51,13 @@ function App() {
   ];
 
   useEffect(() => {
+    const adminStatus = localStorage.getItem("admin");
+    if (adminStatus) {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  useEffect(() => {
     // Generate or retrieve user ID
     const storedUserId = localStorage.getItem("userId");
     if (!storedUserId) {
@@ -77,12 +86,12 @@ function App() {
     socket.on("receiveMessage", (message) => {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "Stranger", text: message },
+        { user: message.isAdmin ? "Admin" : "Stranger", text: message.text },
       ]);
     });
 
-    socket.on("matched", ({ userId, interests }) => {
-      setMatchedUser({ userId, interests });
+    socket.on("matched", ({ userId, interests, isAdmin }) => {
+      setMatchedUser({ userId, interests, isAdmin });
       setConnecting(false);
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -124,6 +133,10 @@ function App() {
       setStrangerTyping(false);
     });
 
+    socket.on("onlineUsers", ({ online_users }) => {
+      setOnlineUsers(online_users);
+    });
+
     return () => {
       socket.off("welcome");
       socket.off("receiveMessage");
@@ -133,6 +146,7 @@ function App() {
       socket.off("chatPartnerDisconnected");
       socket.off("typing");
       socket.off("stopTyping");
+      socket.off("onlineUsers");
     };
   }, []);
 
@@ -170,7 +184,7 @@ function App() {
       if (!socket.connected) {
         socket.connect();
       }
-      socket.emit("register", { userId, interests });
+      socket.emit("register", { userId, interests, isAdmin });
     } else {
       setError(
         "Please select at least one interest and agree to the disclaimer."
@@ -180,15 +194,16 @@ function App() {
 
   const sendMessage = () => {
     if (message.trim()) {
-      socket.emit(
-        "sendMessage",
-        clean(message, { customBadWords: badWordsArray })
-      );
+      const cleanedMessage = isAdmin
+        ? message
+        : clean(message, { customBadWords: badWordsArray });
+
+      socket.emit("sendMessage", { text: cleanedMessage, isAdmin });
       setMessages((prevMessages) => [
         ...prevMessages,
         {
-          user: "You",
-          text: clean(message, { customBadWords: badWordsArray }),
+          user: isAdmin ? "Admin" : "You",
+          text: cleanedMessage,
         },
       ]);
       setMessage("");
@@ -242,7 +257,7 @@ function App() {
   return (
     <div className="App">
       <div className="disclaimer">
-        <Button onClick={showModal}>Read Disclaimer</Button>
+        <Button onClick={showModal}>Read Disclaimer</Button> <p className="online-users">Users online: {onlineUsers}</p>
       </div>
       {!connected ? (
         <div className="connect-container">
@@ -283,7 +298,7 @@ function App() {
                     msg.user === "You" ? "sent" : ""
                   } 
                   ${
-                    msg.user === "Stranger" ? "received" : ""
+                    msg.user === "Stranger" || msg.user === "Admin" ? "received" : ""
                   } 
                   
                   ${

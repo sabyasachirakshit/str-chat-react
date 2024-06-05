@@ -10,6 +10,11 @@
   justify-content: "center";
   margin-top: 5px;
 }
+.online-users{
+  position: relative;
+  top: 5px;
+  margin: 0;
+}
 .connect-container {
   height: 100vh;
   display: flex;

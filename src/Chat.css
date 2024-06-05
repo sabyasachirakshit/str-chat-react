@@ -69,6 +69,9 @@
 .received{
   color: blue;
 }
+.admin-received{
+  color: red;
+}
 
 @media (min-width: 320px) {
   .App {

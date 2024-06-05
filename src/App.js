@@ -298,7 +298,10 @@ function App() {
                     msg.user === "You" ? "sent" : ""
                   } 
                   ${
-                    msg.user === "Stranger" || msg.user === "Admin" ? "received" : ""
+                    msg.user === "Stranger" ? "received" : ""
+                  } 
+                  ${
+                    msg.user === "Admin" ? "admin-received" : ""
                   } 
                   
                   ${

@@ -15,6 +15,8 @@ function App() {
   const [interests, setInterests] = useState([]);
   const [msg, setMsg] = useState("");
   const [message, setMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [strangerTyping, setStrangerTyping] = useState(false);
   const [messages, setMessages] = useState([]);
   const [matchedUser, setMatchedUser] = useState(null);
   const [error, setError] = useState(null);
@@ -108,6 +110,14 @@ function App() {
       setConnecting(false);
     });
 
+    socket.on("typing", () => {
+      setStrangerTyping(true);
+    });
+
+    socket.on("stopTyping", () => {
+      setStrangerTyping(false);
+    });
+
     return () => {
       socket.off("welcome");
       socket.off("receiveMessage");
@@ -115,6 +125,8 @@ function App() {
       socket.off("connected");
       socket.off("error");
       socket.off("chatPartnerDisconnected");
+      socket.off("typing");
+      socket.off("stopTyping");
     };
   }, []);
 
@@ -130,8 +142,28 @@ function App() {
     return result;
   };
 
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing");
+    }
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(stopTyping, 2000);
+  };
+
+  let typingTimeout;
+
+  const stopTyping = () => {
+    setIsTyping(false);
+    socket.emit("stopTyping");
+  };
+
   const connectToChat = () => {
     if (userId && interests.length > 0 && agreement) {
+      if (!socket.connected) {
+        socket.connect();
+      }
       socket.emit("register", { userId, interests });
     } else {
       setError(
@@ -192,6 +224,15 @@ function App() {
     });
   };
 
+  const handleDisconnect = () => {
+    socket.emit("manualDisconnect");
+    socket.disconnect();
+    setConnected(false);
+    setConnecting(false);
+    setMatchedUser(null);
+    setMessages([]);
+  };
+
   return (
     <div className="App">
       <div className="disclaimer">
@@ -238,6 +279,11 @@ function App() {
                   <strong>{msg.user}:</strong> {msg.text}
                 </div>
               ))}
+              {strangerTyping && (
+                <div className="typing-status">
+                  <em>Stranger is typing...</em>
+                </div>
+              )}
             </div>
           )}
 
@@ -246,12 +292,15 @@ function App() {
               className="text-bar"
               type="text"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleTyping}
               onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type a message..."
             />
             <button className="send-button" onClick={sendMessage}>
               Send
+            </button>
+            <button className="disconnect-button" onClick={handleDisconnect}>
+              Disconnect
             </button>
           </div>
         </div>
